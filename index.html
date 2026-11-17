@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Keaktifan Siswa XI TKR 2</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--text:#1b2030;--muted:#6b7389;--line:#e6e9f2;--accent:#4f46e5;--accent2:#06b6d4;--gold:#f5b301;--silver:#9aa4b5;--bronze:#c9783a;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1220;--card:#171c2f;--text:#eef0f8;--muted:#8d95ad;--line:#262d46;--accent:#818cf8;--accent2:#22d3ee;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1220;--card:#171c2f;--text:#eef0f8;--muted:#8d95ad;--line:#262d46;--accent:#818cf8;--accent2:#22d3ee;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif}
+header{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;text-align:center;padding:36px 16px 70px}
+h1{margin:0;font-size:clamp(1.6rem,5vw,2.4rem);letter-spacing:.3px}
+header p{margin:8px 0 0;opacity:.85;font-size:.95rem}
+main{max-width:640px;margin:-44px auto 40px;padding:0 14px}
+.list{background:var(--card);border-radius:20px;box-shadow:0 10px 30px rgba(20,30,80,.12);padding:8px;list-style:none;margin:0}
+.row{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;transition:background .15s}
+.row+.row{border-top:1px solid var(--line)}
+.row:hover{background:rgba(127,127,200,.08)}
+.rank{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.9rem;background:var(--bg);color:var(--muted);flex:none}
+.r1 .rank{background:var(--gold);color:#fff}.r2 .rank{background:var(--silver);color:#fff}.r3 .rank{background:var(--bronze);color:#fff}
+.name{flex:1;font-weight:600;font-size:.98rem;min-width:0}
+.pts{display:flex;align-items:center;gap:8px}
+.pts b{min-width:44px;text-align:center;font-size:1.1rem;color:var(--accent)}
+.pts button{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:1rem;cursor:pointer;line-height:1}
+.pts button:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.gacha{margin-top:22px;background:var(--card);border-radius:20px;box-shadow:0 10px 30px rgba(20,30,80,.12);padding:20px;text-align:center}
+.gacha h2{margin:0 0 4px;font-size:1.3rem}
+.gacha .sub{margin:0 0 6px;color:var(--muted);font-size:.9rem}
+.wheelwrap{position:relative;width:min(330px,86vw);margin:26px auto 18px}
+.wheelwrap canvas{display:block;width:100%;height:auto;border-radius:50%;box-shadow:0 8px 24px rgba(0,0,0,.28);transition:transform 5s cubic-bezier(.12,.6,.1,1)}
+.pointer{position:absolute;top:-14px;left:50%;transform:translateX(-50%);z-index:2;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:28px solid var(--text);filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.roll{width:100%;border-radius:14px;padding:14px;border:0;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:1.05rem;font-weight:700;cursor:pointer}
+.roll:hover{filter:brightness(1.1)}
+.roll:disabled{opacity:.6;cursor:not-allowed}
+.result{margin-top:16px;min-height:96px;border-radius:14px;display:grid;place-items:center;padding:14px;background:var(--bg);font-weight:600}
+.result .em{font-size:2.2rem;display:block}
+.result .who{font-size:1.2rem;color:var(--text)}
+.result.pop{animation:pop .45s ease}
+.t4{color:var(--gold)}.t3{color:#a855f7}.t2{color:#3b82f6}.t1{color:var(--muted)}
+@keyframes pop{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Keaktifan Siswa XI TKR 2</h1>
+  <p>Peringkat berdasarkan poin keaktifan</p>
+</header>
+<main>
+<ol class="list" id="list"></ol>
+<section class="gacha">
+  <h2>🎁 Gacha Reward</h2>
+  <p class="sub">Roda berisi siswa yang punya poin. Makin tinggi poin, makin lebar irisannya dan makin besar peluang terpilih. Yang terpilih mendapat hadiah!</p>
+  <div class="wheelwrap"><div class="pointer"></div><canvas id="wheel" width="600" height="600"></canvas></div>
+  <button class="roll" id="roll">Putar Roda</button>
+  <div class="result" id="result">Tekan Putar Roda</div>
+</section>
+</main>
+<script>
+var names=["Adrian Laksana Surya","Aesar Prabaswara Nurharyono","Azzam Fajar Mulia","Daffa Zhaky Fahrezy","Dahyal Kalil Ahmad","Dihqan Tahriz Kayyisa","Dimas Elang Jagat Maulana","Ezra Bintang Putra Dika","Fahmi Aldo Ziyada","Fandy Irfansyah","Haikal Dhohir Al-Karim","I Wayan Kevin Dewa Arsana","Ilham Adi Pratama","Keyko Aldiano Wijaya","M. Aristiyan Ravino","M. Hisyam Abdil Falah","Melati Dwi Cahya","Mohamad Nikolas Saputra","Muhammad Daffa Putra Wicaksana","Nanda Wyra Kusuma","Nazriel Maulana","Raja Amar Baihaqi Ritonga","Rashya Valentino Ramandita","Reynard Kalih Maheswara Yahya","Rezal Careca","Ridho Raditya Dodi Wijaya","Risang Raka Hadriansyah","Risqita Rahma Devi","Satria Wahyu Pradana","Tono Sanjaya","Viko Alviano","Wafiy Andromedae Wijayanto","Yohannes Teddy Verlando"];
+var pts={};names.forEach(function(n){pts[n]=0});
+try{var s=JSON.parse(localStorage.getItem('keaktifan-xi-tkr-2')||'{}');names.forEach(function(n){if(typeof s[n]==='number')pts[n]=s[n]})}catch(e){}
+function save(){try{localStorage.setItem('keaktifan-xi-tkr-2',JSON.stringify(pts))}catch(e){}}
+function esc(t){return t.replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function ranked(){return names.slice().sort(function(a,b){return pts[b]-pts[a]||a.localeCompare(b)})}
+
+var tiers=[
+ {cls:'t4',name:'Legendary',base:1,bonus:14,em:'👑',reward:'Bebas piket 1 minggu'},
+ {cls:'t3',name:'Epic',base:4,bonus:16,em:'💎',reward:'Pilih tempat duduk 1 minggu'},
+ {cls:'t2',name:'Rare',base:20,bonus:14,em:'⭐',reward:'Bebas piket 1 hari'},
+ {cls:'t1',name:'Common',em:'🎈',reward:'Stiker bintang'}
+];
+function factor(n){var m=Math.max.apply(null,names.map(function(x){return pts[x]}));return m>0?pts[n]/m:0}
+function calcRates(n){var f=factor(n),r=[],sum=0;for(var i=0;i<3;i++){var v=tiers[i].base+tiers[i].bonus*f;r.push(v);sum+=v}r.push(100-sum);return r}
+
+var wheelRot=0,spinning=false;
+function pool(){var p=ranked().filter(function(n){return pts[n]>0});var t=p.reduce(function(a,n){return a+pts[n]},0);return{list:p,total:t}}
+function shortName(n){var w=n.split(' ');return w.slice(0,2).join(' ')}
+function drawWheel(){
+  var cv=document.getElementById('wheel'),c=cv.getContext('2d'),cx=300,cy=300,R=292,P=pool();
+  c.clearRect(0,0,600,600);
+  if(!P.list.length){
+    c.beginPath();c.arc(cx,cy,R,0,Math.PI*2);c.fillStyle='#94a3b8';c.fill();
+    c.fillStyle='#fff';c.font='bold 30px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('Belum ada poin',cx,cy);return;
+  }
+  var a0=-Math.PI/2;
+  P.list.forEach(function(n,i){
+    var span=pts[n]/P.total*Math.PI*2;
+    c.beginPath();c.moveTo(cx,cy);c.arc(cx,cy,R,a0,a0+span);c.closePath();
+    c.fillStyle='hsl('+((i*47)%360)+',70%,50%)';c.fill();c.lineWidth=3;c.strokeStyle='#fff';c.stroke();
+    var fs=Math.min(30,span*R*0.5),label=shortName(n);
+    if(fs>=11){
+      c.save();c.translate(cx,cy);c.rotate(a0+span/2);
+      c.textAlign='right';c.textBaseline='middle';c.fillStyle='#fff';c.shadowColor='rgba(0,0,0,.45)';c.shadowBlur=3;
+      do{c.font='bold '+fs+'px sans-serif';fs-=1}while(c.measureText(label).width>R-80&&fs>9);
+      c.fillText(label,R-16,0);c.restore();
+    }
+    a0+=span;
+  });
+  c.beginPath();c.arc(cx,cy,34,0,Math.PI*2);c.fillStyle='#fff';c.fill();
+  c.font='34px serif';c.textAlign='center';c.textBaseline='middle';c.fillText('🎁',cx,cy+2);
+}
+function render(){
+  var admin=location.hash==='#admin',sorted=ranked();
+  document.getElementById('list').innerHTML=sorted.map(function(n,i){
+    var r=i+1,medal=r<=3&&pts[n]>0?' r'+r:'';
+    return '<li class="row'+medal+'"><span class="rank">'+r+'</span><span class="name">'+esc(n)+'</span><span class="pts">'+(admin?'<button data-n="'+esc(n)+'" data-d="-1" aria-label="Kurangi">−</button>':'')+'<b>'+pts[n]+'</b>'+(admin?'<button data-n="'+esc(n)+'" data-d="1" aria-label="Tambah">+</button>':'')+'</span></li>';
+  }).join('');
+  if(!spinning){drawWheel();document.getElementById('roll').disabled=!pool().list.length}
+}
+document.getElementById('list').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;
+  var n=b.getAttribute('data-n');pts[n]=Math.max(0,pts[n]+parseInt(b.getAttribute('data-d'),10));save();render();
+});
+document.getElementById('roll').addEventListener('click',function(){
+  var P=pool();if(spinning||!P.list.length)return;
+  var btn=this,res=document.getElementById('result');
+  var x=Math.random()*P.total,acc=0,idx=P.list.length-1;
+  for(var i=0;i<P.list.length;i++){if(x<acc+pts[P.list[i]]){idx=i;break}acc+=pts[P.list[i]]}
+  var win=P.list[idx],start=P.list.slice(0,idx).reduce(function(a,n){return a+pts[n]},0);
+  var a=(start+pts[win]*(0.15+Math.random()*0.7))/P.total*360;
+  var r=calcRates(win),y=Math.random()*100,ac=0,tier=tiers[3];
+  for(var j=0;j<4;j++){ac+=r[j];if(y<ac){tier=tiers[j];break}}
+  spinning=true;btn.disabled=true;res.className='result';res.textContent='Memutar roda...';
+  wheelRot=Math.ceil(wheelRot/360)*360+360*6-a;
+  document.getElementById('wheel').style.transform='rotate('+wheelRot+'deg)';
+  setTimeout(function(){
+    res.innerHTML='<div><div class="who">🎉 '+esc(win)+'</div><span class="em">'+tier.em+'</span><div class="'+tier.cls+'">'+tier.name+'</div><div>'+tier.reward+'</div></div>';
+    res.className='result pop';spinning=false;btn.disabled=false;
+  },5200);
+});
+window.addEventListener('hashchange',render);
+render();
+</script>
+</body>
+</html>
